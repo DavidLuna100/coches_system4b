@@ -72,7 +72,12 @@ class App:
         self.id.focus()
         self.id.pack(pady=5)
 
-        Button(self.ventana,text=":: Eliminar ::",command=self.eliminar_coche_controller).pack(pady=5)
+        self.btn_buscar=Button(self.ventana,text="Buscar",command=lambda:self.buscar_controller("eliminar"))
+        self.btn_buscar.pack(pady=5)
+
+        self.btn_eliminar=Button(self.ventana,text=":: Eliminar ::",state="disabled",command=self.eliminar_coche_controller)
+        self.btn_eliminar.pack(pady=5)
+
         Button(self.ventana,text=":: Regresar ::",command=self.menu_acciones).pack(pady=5)
 
     def consultar_coche_view(self):
@@ -128,6 +133,16 @@ class App:
         else:
             messagebox.showerror(title=":: Verifique por favor ::",message="...¡Esta Accion no pudo realizarse en este momento!...")
 
+    def confirmacion_eliminar(self):
+        return messagebox.askyesno(title=":: Confirmar ::",message="¿Deseas eliminar este coche?")
+
+    def cambiar_estado_btn(self,estado,tipo_accion):
+        if tipo_accion=="eliminar":
+            if estado:
+                self.btn_eliminar.config(state="normal")
+            else:
+                self.btn_eliminar.config(state="disabled")
+
     def insertar_coche_controller(self):
         coches1=coches.Coches(self.marca.get(),self.color.get(),self.modelo.get(),self.velocidad.get(),self.potencia.get(),self.asientos.get())
         respuesta=coches1.insertar()
@@ -138,10 +153,12 @@ class App:
 
     def eliminar_coche_controller(self):
         id=self.id.get()
-        respuesta=coches.Coches.eliminar(id)
-        self.respuesta_sql(respuesta)
-        if respuesta:
-            self.eliminar_coche_view()
+        resp=self.confirmacion_eliminar()
+        if resp==True:
+            respuesta=coches.Coches.eliminar(id)
+            self.respuesta_sql(respuesta)
+            if respuesta:
+                self.eliminar_coche_view()
 
     def consultar_coche_controller(self,filas):
         registros=coches.Coches.consultar()
@@ -162,6 +179,16 @@ class App:
         del coches1
         if respuesta:
             self.modificar_coche_view()
+
+    def buscar_controller(self,tipo_accion):
+        id=self.id.get()
+        coche1=coches.Coches.buscar(id)
+        if len(coche1)>0:
+            messagebox.showinfo(title="...¡ Registro Encontrado !...",message=f"...¡El registro fue encontrado con exito, puedes {tipo_accion}!...")
+            self.cambiar_estado_btn(True,tipo_accion)
+        else:
+            messagebox.showerror(title="...¡ Verifica por favor !...",message=f"...¡El registro no fue encontrado, no es posible {tipo_accion}!...")
+            self.cambiar_estado_btn(False,tipo_accion)
 
 
 if __name__=="__main__":
