@@ -1,5 +1,5 @@
 from coches import coches
-from tkinter import Tk,Label,Entry,Button,messagebox,StringVar,Menu,LabelFrame
+from tkinter import Tk,Label,Entry,Button,messagebox,StringVar,Menu,LabelFrame,ttk
 
 
 class App:
@@ -115,9 +115,16 @@ class App:
         self.borrarPantalla()
         self.barraMenu()
         Label(self.ventana,text="..:: Consultar Coches ::..").pack(pady=10)
-        filas=""
-        filas=self.consultar_coche_controller(filas)
-        Label(self.ventana,text=f"{filas}").pack(pady=5)
+
+        columnas=("ID","Marca","Color","Modelo","Velocidad","Potencia","Asientos")
+        self.tabla=ttk.Treeview(self.ventana,columns=columnas,show="headings",height=15)
+        for col in columnas:
+            self.tabla.heading(col,text=col)
+            self.tabla.column(col,width=75,anchor="center")
+        self.tabla.pack(pady=10,padx=10)
+
+        self.consultar_coche_controller(self.tabla)
+
         Button(self.ventana,text=":: Regresar ::",command=self.menu_acciones).pack(pady=5)
 
     def modificar_coche_view(self):
@@ -213,16 +220,13 @@ class App:
             if respuesta:
                 self.eliminar_coche_view()
 
-    def consultar_coche_controller(self,filas):
+    def consultar_coche_controller(self,tabla):
         registros=coches.Coches.consultar()
-        num_coche=1
         if len(registros)>0:
             for fila in registros:
-                filas=filas+(f"\n\tCoche #: {num_coche}\nID: {fila[0]}\tMarca: {fila[1]}\n\tColor: {fila[2]}\tModelo: {fila[3]}\n\tVelocidad: {fila[4]}\tPotencia: {fila[5]}\tAsientos: {fila[6]}")
-                num_coche+=1
+                tabla.insert("","end",values=fila)
         else:
-            filas="¡No se encontro informacion en la BD!..."
-        return filas
+            messagebox.showinfo(title=":: Consulta ::",message="¡No se encontro informacion en la BD!...")
 
     def modificar_coche_controller(self):
         id=self.id.get()
