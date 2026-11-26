@@ -133,11 +133,15 @@ class App:
         respuesta=coches1.insertar()
         self.respuesta_sql(respuesta)
         del coches1
+        if respuesta:
+            self.insertar_coche_view()
 
     def eliminar_coche_controller(self):
         id=self.id.get()
         respuesta=coches.Coches.eliminar(id)
         self.respuesta_sql(respuesta)
+        if respuesta:
+            self.eliminar_coche_view()
 
     def consultar_coche_controller(self,filas):
         registros=coches.Coches.consultar()
@@ -156,6 +160,8 @@ class App:
         respuesta=coches1.actualizar(id)
         self.respuesta_sql(respuesta)
         del coches1
+        if respuesta:
+            self.modificar_coche_view()
 
 
 if __name__=="__main__":
